@@ -2,6 +2,12 @@
 
 本目录由 AI Engineering Kit 安装和更新，包含本工程需要遵守的 AI 工程规范。
 
+发布包：
+
+```text
+@liang.ma/ai-engineering-kit
+```
+
 ## 常用指令
 
 在工程根目录运行：
@@ -27,6 +33,34 @@ npx @liang.ma/ai-engineering-kit use-remote
 | `doctor` | 检查规范文件、skills、入口规则和 manifest 是否完整 |
 | `accept` | 确认所有 `.new-v版本` 文件已经人工合并，更新远程基线并删除新版本文件 |
 | `use-remote` | 放弃冲突文件的本地改动，直接采用 `.new-v版本` 文件 |
+
+## 推荐流程
+
+安装后先检查：
+
+```bash
+npx @liang.ma/ai-engineering-kit doctor
+npx @liang.ma/ai-engineering-kit status
+```
+
+日常更新：
+
+```bash
+npx @liang.ma/ai-engineering-kit update
+npx @liang.ma/ai-engineering-kit status
+```
+
+如果 `update` 生成 `.new-v版本` 文件：
+
+1. 人工对比原文件和 `.new-v版本` 文件。
+2. 合并需要保留的内容。
+3. 运行 `npx @liang.ma/ai-engineering-kit accept` 完成闭环。
+
+如果确认不保留本地改动，运行：
+
+```bash
+npx @liang.ma/ai-engineering-kit use-remote
+```
 
 ## 安装 Codex 或 Claude
 

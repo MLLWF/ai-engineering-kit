@@ -1,6 +1,6 @@
 {
   "name": "@liang.ma/ai-engineering-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Installer for AI Engineering Protocol docs and agent skills.",
   "type": "module",
   "bin": {
