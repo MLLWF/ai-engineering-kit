@@ -141,7 +141,7 @@ npx @liang.ma/ai-engineering-kit use-remote
 
 ## 发布
 
-维护者发布新版本时：
+只推送 GitHub 不会自动更新 npm 包。维护者发布新版本时：
 
 ```bash
 npm version patch
@@ -150,3 +150,5 @@ git push --follow-tags
 ```
 
 包名使用 `@liang.ma/ai-engineering-kit`，因为未加 scope 的 `ai-engineering-kit` 已被 npm 上其他包占用。
+
+完整发布流程见 [docs/maintainer-release.md](docs/maintainer-release.md)。
