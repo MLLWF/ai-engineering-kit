@@ -17,7 +17,7 @@ const END_MARKER = "<!-- ai-engineering-kit:end -->";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const KIT_ROOT = path.resolve(__dirname, "..");
-const PAYLOAD_ROOT = path.join(KIT_ROOT, "payload");
+const PAYLOAD_ROOT = path.join(KIT_ROOT, "src", "payload");
 const KIT_VERSION = readKitVersion();
 
 export async function main(args) {
@@ -502,7 +502,7 @@ async function buildPayloadEntries(targets) {
   entries.push(...(await filesUnder(path.join(PAYLOAD_ROOT, "docs"), "docs")));
 
   for (const target of targets) {
-    entries.push(...(await filesUnder(path.join(PAYLOAD_ROOT, target), `.${target}`)));
+    entries.push(...(await filesUnder(path.join(PAYLOAD_ROOT, "skills"), `.${target}/skills`)));
   }
 
   return entries;

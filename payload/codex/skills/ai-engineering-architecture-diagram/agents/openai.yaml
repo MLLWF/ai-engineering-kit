@@ -1,4 +1,0 @@
-interface:
-  display_name: "AI Engineering Architecture Diagram"
-  short_description: "Plan architecture diagrams for AI Engineering Protocol"
-  default_prompt: "Use $ai-engineering-architecture-diagram to produce, revise, and finalize a detailed planning-stage software architecture diagram."

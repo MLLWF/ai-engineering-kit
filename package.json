@@ -7,14 +7,13 @@
     "ai-engineering-kit": "bin/ai-engineering-kit.js"
   },
   "scripts": {
-    "build": "node scripts/build-payload.js",
-    "check": "npm run build && node --check bin/ai-engineering-kit.js && node --check src/cli.js && node --check scripts/build-payload.js"
+    "check": "node --check bin/ai-engineering-kit.js && node --check src/cli.js && node --check scripts/push-github.js && node --check scripts/publish-npm.js",
+    "push:github": "node scripts/push-github.js",
+    "publish:npm": "node scripts/publish-npm.js"
   },
   "files": [
     "bin/",
-    "docs/",
-    "src/",
-    "payload/"
+    "src/"
   ],
   "license": "MIT",
   "engines": {
