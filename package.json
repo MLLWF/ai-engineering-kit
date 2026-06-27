@@ -1,13 +1,14 @@
 {
   "name": "@liang.ma/ai-engineering-kit",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Installer for AI Engineering Protocol docs and agent skills.",
   "type": "module",
   "bin": {
     "ai-engineering-kit": "bin/ai-engineering-kit.js"
   },
   "scripts": {
-    "check": "node --check bin/ai-engineering-kit.js && node --check src/cli.js"
+    "build": "node scripts/build-payload.js",
+    "check": "npm run build && node --check bin/ai-engineering-kit.js && node --check src/cli.js && node --check scripts/build-payload.js"
   },
   "files": [
     "bin/",

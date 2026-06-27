@@ -25,19 +25,13 @@ npx @liang.ma/ai-engineering-kit update
 规范文档：
 
 ```text
-payload/docs/ai-engineering/
+src-payload/docs/ai-engineering/
 ```
 
-Codex skills：
+Skills：
 
 ```text
-payload/codex/skills/
-```
-
-Claude Code skills：
-
-```text
-payload/claude/skills/
+src-payload/skills/
 ```
 
 CLI：
@@ -47,10 +41,18 @@ src/cli.js
 bin/ai-engineering-kit.js
 ```
 
-用户安装后的说明文档：
+生成后的发布 payload：
 
 ```text
-payload/docs/ai-engineering/README.md
+payload/
+```
+
+`payload/` 由构建脚本生成，不手工维护。构建映射：
+
+```text
+src-payload/docs/   -> payload/docs/
+src-payload/skills/ -> payload/codex/skills/
+src-payload/skills/ -> payload/claude/skills/
 ```
 
 仓库首页：
@@ -64,6 +66,7 @@ README.md
 在仓库根目录运行：
 
 ```bash
+npm run build
 npm run check
 npm pack --dry-run
 ```
@@ -73,6 +76,7 @@ npm pack --dry-run
 - `npm run check` 通过。
 - `npm pack --dry-run` 输出中包含预期文件。
 - 没有误把临时文件、测试目录或本地路径打进包。
+- `payload/codex/skills/` 和 `payload/claude/skills/` 不需要手工同步，它们由 `src-payload/skills/` 生成。
 
 可选：在临时目录用当前工作区版本测试：
 

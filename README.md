@@ -144,6 +144,7 @@ npx @liang.ma/ai-engineering-kit use-remote
 只推送 GitHub 不会自动更新 npm 包。维护者发布新版本时：
 
 ```bash
+npm run build
 npm version patch
 npm publish --access public
 git push --follow-tags
@@ -152,3 +153,21 @@ git push --follow-tags
 包名使用 `@liang.ma/ai-engineering-kit`，因为未加 scope 的 `ai-engineering-kit` 已被 npm 上其他包占用。
 
 完整发布流程见 [docs/maintainer-release.md](docs/maintainer-release.md)。
+
+## 维护源
+
+后续维护只改单一源：
+
+```text
+src-payload/docs/ai-engineering/
+src-payload/skills/
+src/cli.js
+```
+
+不要手工分别修改 `payload/codex/skills/` 和 `payload/claude/skills/`。运行：
+
+```bash
+npm run build
+```
+
+会从 `src-payload/skills/` 同步生成两份 agent payload。

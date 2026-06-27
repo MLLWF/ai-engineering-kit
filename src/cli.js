@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { fileURLToPath } from "node:url";
 
-const KIT_VERSION = "v0.1.0";
 const MANIFEST_FILE = ".ai-engineering-kit.json";
 const MANAGED_BLOCK = `<!-- ai-engineering-kit:start -->
 ## AI Engineering Protocol
@@ -18,6 +18,7 @@ const END_MARKER = "<!-- ai-engineering-kit:end -->";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const KIT_ROOT = path.resolve(__dirname, "..");
 const PAYLOAD_ROOT = path.join(KIT_ROOT, "payload");
+const KIT_VERSION = readKitVersion();
 
 export async function main(args) {
   const [command, ...rest] = args;
@@ -673,6 +674,12 @@ function commandPrefix() {
     return `node ${scriptPath}`;
   }
   return "ai-engineering-kit";
+}
+
+function readKitVersion() {
+  const packageJsonPath = path.join(KIT_ROOT, "package.json");
+  const packageJson = JSON.parse(fsSync.readFileSync(packageJsonPath, "utf8"));
+  return `v${packageJson.version}`;
 }
 
 function printList(title, items) {
