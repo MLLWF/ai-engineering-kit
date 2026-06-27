@@ -7,14 +7,14 @@
 在工程根目录运行：
 
 ```bash
-npx @mllwf/ai-engineering-kit install
-npx @mllwf/ai-engineering-kit install claude
-npx @mllwf/ai-engineering-kit install codex,claude
-npx @mllwf/ai-engineering-kit update
-npx @mllwf/ai-engineering-kit status
-npx @mllwf/ai-engineering-kit doctor
-npx @mllwf/ai-engineering-kit accept
-npx @mllwf/ai-engineering-kit use-remote
+npx @liang.ma/ai-engineering-kit install
+npx @liang.ma/ai-engineering-kit install claude
+npx @liang.ma/ai-engineering-kit install codex,claude
+npx @liang.ma/ai-engineering-kit update
+npx @liang.ma/ai-engineering-kit status
+npx @liang.ma/ai-engineering-kit doctor
+npx @liang.ma/ai-engineering-kit accept
+npx @liang.ma/ai-engineering-kit use-remote
 ```
 
 ## 指令说明
@@ -33,25 +33,25 @@ npx @mllwf/ai-engineering-kit use-remote
 默认安装 Codex：
 
 ```bash
-npx @mllwf/ai-engineering-kit install
+npx @liang.ma/ai-engineering-kit install
 ```
 
 只安装 Claude Code：
 
 ```bash
-npx @mllwf/ai-engineering-kit install claude
+npx @liang.ma/ai-engineering-kit install claude
 ```
 
 同时安装 Codex 和 Claude Code：
 
 ```bash
-npx @mllwf/ai-engineering-kit install codex,claude
+npx @liang.ma/ai-engineering-kit install codex,claude
 ```
 
 `update` 也支持相同写法：
 
 ```bash
-npx @mllwf/ai-engineering-kit update claude
+npx @liang.ma/ai-engineering-kit update claude
 ```
 
 ## 冲突处理示例
@@ -66,7 +66,7 @@ docs/ai-engineering/ai-engineering-protocol.md
 如果你没有改过规范文件，执行：
 
 ```bash
-npx @mllwf/ai-engineering-kit update
+npx @liang.ma/ai-engineering-kit update
 ```
 
 工具会直接把文件更新到新版本，并更新 `.ai-engineering-kit.json` 中的 `baseRemoteHash`。
@@ -100,7 +100,7 @@ diff -u docs/ai-engineering/ai-engineering-protocol.md docs/ai-engineering/ai-en
 人工合并完成后运行：
 
 ```bash
-npx @mllwf/ai-engineering-kit accept
+npx @liang.ma/ai-engineering-kit accept
 ```
 
 工具会列出所有待接受的新版本文件，并提示：
@@ -115,7 +115,7 @@ npx @mllwf/ai-engineering-kit accept
 如果你不想保留本地改动，想直接采用远程最新版本，运行：
 
 ```bash
-npx @mllwf/ai-engineering-kit use-remote
+npx @liang.ma/ai-engineering-kit use-remote
 ```
 
 工具会列出将被覆盖的本地文件和将采用的新版本文件，确认后：

@@ -7,14 +7,14 @@ AI Engineering Kit 用于把 AI Engineering Protocol 规范和配套 skills 安�
 在目标工程根目录运行：
 
 ```bash
-npx @mllwf/ai-engineering-kit install
-npx @mllwf/ai-engineering-kit install claude
-npx @mllwf/ai-engineering-kit install codex,claude
-npx @mllwf/ai-engineering-kit update
-npx @mllwf/ai-engineering-kit status
-npx @mllwf/ai-engineering-kit doctor
-npx @mllwf/ai-engineering-kit accept
-npx @mllwf/ai-engineering-kit use-remote
+npx @liang.ma/ai-engineering-kit install
+npx @liang.ma/ai-engineering-kit install claude
+npx @liang.ma/ai-engineering-kit install codex,claude
+npx @liang.ma/ai-engineering-kit update
+npx @liang.ma/ai-engineering-kit status
+npx @liang.ma/ai-engineering-kit doctor
+npx @liang.ma/ai-engineering-kit accept
+npx @liang.ma/ai-engineering-kit use-remote
 ```
 
 ## 安装目标
