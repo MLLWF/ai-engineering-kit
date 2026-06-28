@@ -19,6 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const KIT_ROOT = path.resolve(__dirname, "..");
 const PAYLOAD_ROOT = path.join(KIT_ROOT, "src", "payload");
 const KIT_VERSION = readKitVersion();
+const PACKAGE_NAME = "@liang.ma/ai-engineering-kit";
 
 export async function main(args) {
   const [command, ...rest] = args;
@@ -126,10 +127,7 @@ async function install(projectRoot, options) {
 
   manifest.schemaVersion = 1;
   manifest.kitVersion = KIT_VERSION;
-  manifest.source = {
-    type: "local-prototype",
-    ref: KIT_VERSION,
-  };
+  manifest.source = kitSource();
   await writeManifest(projectRoot, manifest);
 
   printInstallSummary("安装完成", result, commandPrefix());
@@ -155,11 +153,7 @@ async function update(projectRoot, options) {
   }
 
   manifest.kitVersion = KIT_VERSION;
-  manifest.source = {
-    ...(manifest.source || {}),
-    type: manifest.source?.type || "local-prototype",
-    ref: KIT_VERSION,
-  };
+  manifest.source = kitSource();
   await writeManifest(projectRoot, manifest);
 
   printInstallSummary("更新完成", result, commandPrefix());
@@ -592,14 +586,19 @@ async function readManifest(projectRoot) {
     return {
       schemaVersion: 1,
       kitVersion: KIT_VERSION,
-      source: {
-        type: "local-prototype",
-        ref: KIT_VERSION,
-      },
+      source: kitSource(),
       files: {},
     };
   }
   return JSON.parse(await fs.readFile(manifestPath, "utf8"));
+}
+
+function kitSource() {
+  return {
+    type: "npm",
+    package: PACKAGE_NAME,
+    ref: KIT_VERSION,
+  };
 }
 
 async function requireManifest(projectRoot) {

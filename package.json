@@ -3,11 +3,27 @@
   "version": "0.1.3",
   "description": "Installer for AI Engineering Protocol docs and agent skills.",
   "type": "module",
+  "keywords": [
+    "ai-engineering",
+    "codex",
+    "claude",
+    "agent",
+    "skills"
+  ],
+  "homepage": "https://github.com/MLLWF/ai-engineering-kit#readme",
+  "bugs": {
+    "url": "https://github.com/MLLWF/ai-engineering-kit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/MLLWF/ai-engineering-kit.git"
+  },
   "bin": {
     "ai-engineering-kit": "bin/ai-engineering-kit.js"
   },
   "scripts": {
-    "check": "node --check bin/ai-engineering-kit.js && node --check src/cli.js && node --check scripts/push-github.js && node --check scripts/publish-npm.js",
+    "check": "node --check bin/ai-engineering-kit.js && node --check src/cli.js && node --check scripts/push-github.js && node --check scripts/publish-npm.js && npm test",
+    "test": "node --test",
     "push:github": "node scripts/push-github.js",
     "publish:npm": "node scripts/publish-npm.js"
   },

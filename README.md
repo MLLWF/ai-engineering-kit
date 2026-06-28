@@ -175,7 +175,17 @@ npm version patch
 npm run publish:npm
 ```
 
-`npm run publish:npm` 会先检查、执行 `npm pack --dry-run`，然后要求输入 `publish` 才会继续发布。发布成功后会推送提交和 tag。
+`npm run publish:npm` 会先检查：
+
+```text
+工作区必须干净
+当前 commit 必须包含 v版本号 tag
+npm 上不能已经存在当前版本
+当前 npm 登录账号可用
+npm pack --dry-run 输出正常
+```
+
+检查通过后，脚本要求输入 `publish` 才会继续发布。发布成功后会推送提交和 tag。
 
 版本选择：
 
@@ -201,3 +211,11 @@ npx @liang.ma/ai-engineering-kit@latest install
 npx @liang.ma/ai-engineering-kit@latest doctor
 npx @liang.ma/ai-engineering-kit@latest status
 ```
+
+本地检查：
+
+```bash
+npm run check
+```
+
+`check` 会执行语法检查和 `node:test` 测试。
