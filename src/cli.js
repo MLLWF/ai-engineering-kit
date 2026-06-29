@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { fileURLToPath } from "node:url";
 
@@ -21,7 +20,7 @@ const PAYLOAD_ROOT = path.join(KIT_ROOT, "src", "payload");
 const KIT_VERSION = readKitVersion();
 const PACKAGE_NAME = "@liang.ma/ai-engineering-kit";
 
-export async function main(args) {
+export async function main(args, runtime = {}) {
   const [command, ...rest] = args;
   if (!command || command === "help" || command === "--help" || command === "-h") {
     printHelp();
@@ -45,10 +44,10 @@ export async function main(args) {
       await doctor(projectRoot);
       break;
     case "accept":
-      await accept(projectRoot);
+      await accept(projectRoot, runtime);
       break;
     case "use-remote":
-      await useRemote(projectRoot);
+      await useRemote(projectRoot, runtime);
       break;
     default:
       throw new Error(`未知命令：${command}\n运行 ai-engineering-kit --help 查看可用命令。`);
@@ -260,7 +259,7 @@ function expectedRuleFilesFromManifest(manifest) {
   return [...expected];
 }
 
-async function accept(projectRoot) {
+async function accept(projectRoot, runtime = {}) {
   const manifest = await requireManifest(projectRoot);
   const pending = await findPendingNewFiles(projectRoot);
   if (pending.length === 0) {
@@ -284,7 +283,7 @@ async function accept(projectRoot) {
   console.log("请确认你已经完成人工对比和合并。");
   console.log("");
 
-  const confirmed = await confirm("是否继续？[y/N] ");
+  const confirmed = await confirm("是否继续？[y/N] ", runtime);
   if (!confirmed) {
     console.log("已取消 accept。");
     return;
@@ -310,7 +309,7 @@ async function accept(projectRoot) {
   await writeManifest(projectRoot, manifest);
 }
 
-async function useRemote(projectRoot) {
+async function useRemote(projectRoot, runtime = {}) {
   const manifest = await requireManifest(projectRoot);
   const pending = await findPendingNewFiles(projectRoot);
   if (pending.length === 0) {
@@ -334,7 +333,7 @@ async function useRemote(projectRoot) {
   console.log("请确认你确实要直接采用远程最新版本。");
   console.log("");
 
-  const confirmed = await confirm("是否继续？[y/N] ");
+  const confirmed = await confirm("是否继续？[y/N] ", runtime);
   if (!confirmed) {
     console.log("已取消 use-remote。");
     return;
@@ -614,14 +613,48 @@ async function writeManifest(projectRoot, manifest) {
   await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
-async function confirm(question) {
-  const rl = readline.createInterface({ input, output });
-  try {
-    const answer = await rl.question(question);
-    return answer.trim().toLowerCase() === "y";
-  } finally {
-    rl.close();
+async function confirm(question, runtime = {}) {
+  if (runtime.confirm) {
+    return runtime.confirm(question);
   }
+
+  output.write(question);
+
+  return new Promise((resolve, reject) => {
+    let answer = "";
+
+    function cleanup() {
+      input.off("data", onData);
+      input.off("end", onEnd);
+      input.off("error", onError);
+    }
+
+    function finish() {
+      cleanup();
+      resolve(answer.trim().toLowerCase() === "y");
+    }
+
+    function onData(chunk) {
+      answer += chunk.toString("utf8");
+      if (answer.includes("\n")) {
+        finish();
+      }
+    }
+
+    function onEnd() {
+      finish();
+    }
+
+    function onError(error) {
+      cleanup();
+      reject(error);
+    }
+
+    input.on("data", onData);
+    input.on("end", onEnd);
+    input.on("error", onError);
+    input.resume();
+  });
 }
 
 async function exists(filePath) {
