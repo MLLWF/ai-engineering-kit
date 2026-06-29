@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { EventEmitter } from "node:events";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -31,11 +32,15 @@ test("update keeps local changes and writes new version file", async () => {
   await main(["install", "--cwd", projectRoot]);
 
   await fs.appendFile(path.join(projectRoot, "docs/ai-engineering/README.md"), "\n本地定制\n");
-  await main(["update", "--cwd", projectRoot]);
+  const output = await captureStdout(async () => {
+    await main(["update", "--cwd", projectRoot]);
+  });
 
   const files = await fs.readdir(path.join(projectRoot, "docs/ai-engineering"));
   assert.ok(files.some((file) => file.startsWith("README.md.new-v")));
   await assertFileIncludes(projectRoot, "docs/ai-engineering/README.md", "本地定制");
+  assert.match(output, /npx @liang\.ma\/ai-engineering-kit accept/);
+  assert.match(output, /npx @liang\.ma\/ai-engineering-kit use-remote/);
 });
 
 test("use-remote adopts pending new version and removes new file", async () => {
@@ -142,6 +147,20 @@ test("doctor reports missing managed rule file", async () => {
   assert.match(output, /缺少 AGENTS\.md 入口规则文件/);
 });
 
+test("use-remote confirmation releases stdin after reading answer", async () => {
+  const projectRoot = await makeTempProject();
+  await makeReadmeConflict(projectRoot, "本地定制\n");
+  const input = makeInput(["y\n"]);
+
+  await main(["use-remote", "--cwd", projectRoot], {
+    input,
+    output: { write() {} },
+  });
+
+  assert.equal(input.paused, true);
+  assert.deepEqual(await listNewVersions(projectRoot, "docs/ai-engineering"), []);
+});
+
 async function makeTempProject() {
   return fs.mkdtemp(path.join(os.tmpdir(), "ai-engineering-kit-test-"));
 }
@@ -214,4 +233,22 @@ function noRuntime() {
   return {
     confirm: async () => false,
   };
+}
+
+function makeInput(chunks) {
+  const input = new EventEmitter();
+  input.paused = false;
+  input.resume = () => {
+    input.paused = false;
+    queueMicrotask(() => {
+      for (const chunk of chunks) {
+        input.emit("data", Buffer.from(chunk));
+      }
+      input.emit("end");
+    });
+  };
+  input.pause = () => {
+    input.paused = true;
+  };
+  return input;
 }

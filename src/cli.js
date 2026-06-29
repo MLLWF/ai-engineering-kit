@@ -50,7 +50,7 @@ export async function main(args, runtime = {}) {
       await useRemote(projectRoot, runtime);
       break;
     default:
-      throw new Error(`未知命令：${command}\n运行 ai-engineering-kit --help 查看可用命令。`);
+      throw new Error(`未知命令：${command}\n运行 npx ${PACKAGE_NAME} --help 查看可用命令。`);
   }
 }
 
@@ -603,7 +603,7 @@ function kitSource() {
 async function requireManifest(projectRoot) {
   const manifestPath = path.join(projectRoot, MANIFEST_FILE);
   if (!(await exists(manifestPath))) {
-    throw new Error("当前项目尚未安装 AI Engineering Kit，请先运行 install。");
+    throw new Error(`当前项目尚未安装 AI Engineering Kit，请先运行 npx ${PACKAGE_NAME} install。`);
   }
   return readManifest(projectRoot);
 }
@@ -618,18 +618,24 @@ async function confirm(question, runtime = {}) {
     return runtime.confirm(question);
   }
 
-  output.write(question);
+  const confirmInput = runtime.input || input;
+  const confirmOutput = runtime.output || output;
+  confirmOutput.write(question);
 
   return new Promise((resolve, reject) => {
     let answer = "";
+    let finished = false;
 
     function cleanup() {
-      input.off("data", onData);
-      input.off("end", onEnd);
-      input.off("error", onError);
+      confirmInput.off("data", onData);
+      confirmInput.off("end", onEnd);
+      confirmInput.off("error", onError);
+      confirmInput.pause();
     }
 
     function finish() {
+      if (finished) return;
+      finished = true;
       cleanup();
       resolve(answer.trim().toLowerCase() === "y");
     }
@@ -650,10 +656,10 @@ async function confirm(question, runtime = {}) {
       reject(error);
     }
 
-    input.on("data", onData);
-    input.on("end", onEnd);
-    input.on("error", onError);
-    input.resume();
+    confirmInput.on("data", onData);
+    confirmInput.on("end", onEnd);
+    confirmInput.on("error", onError);
+    confirmInput.resume();
   });
 }
 
@@ -705,7 +711,7 @@ function commandPrefix() {
   if (scriptPath.endsWith("ai-engineering-kit.js")) {
     return `node ${scriptPath}`;
   }
-  return "ai-engineering-kit";
+  return `npx ${PACKAGE_NAME}`;
 }
 
 function readKitVersion() {

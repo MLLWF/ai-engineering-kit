@@ -52,9 +52,26 @@ try {
   rl.close();
 }
 
-run("npm", ["publish", "--access", "public"]);
+run("npm", ["publish", "--access", "public", "--tag", "latest"]);
 run("git", ["push", "--follow-tags"]);
-run("npm", ["view", name, "version"]);
+
+const versionAfterPublish = capture("npm", ["view", `${name}@${version}`, "version"]).trim();
+if (versionAfterPublish !== version) {
+  console.error(`${name}@${version} 发布后仍无法从当前 npm registry 查询到。`);
+  console.error("请检查 npm registry 配置、网络缓存，或稍后重试：");
+  console.error(`  npm view ${name}@${version} version`);
+  process.exit(1);
+}
+
+const latestAfterPublish = capture("npm", ["view", name, "version"]).trim();
+if (latestAfterPublish !== version) {
+  console.error(`${name}@${version} 已发布，但 latest 当前指向 ${latestAfterPublish}。`);
+  console.error("如确认要把 latest 指向当前版本，请运行：");
+  console.error(`  npm dist-tag add ${name}@${version} latest`);
+  process.exit(1);
+}
+
+console.log(`发布完成：${name}@${version}`);
 
 function run(command, args) {
   const result = spawnSync(command, args, {
