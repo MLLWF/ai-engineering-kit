@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 
 run("npm", ["run", "check"]);
 
-const version = capture("node", ["-p", "require('./package.json').version"]).trim();
-const name = capture("node", ["-p", "require('./package.json').name"]).trim();
+const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
+const version = packageJson.version;
+const name = packageJson.name;
 const tag = `v${version}`;
 const status = capture("git", ["status", "--short"]);
 if (status.trim()) {
