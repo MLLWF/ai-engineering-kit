@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { main } from "../src/cli.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const KIT_VERSION_SUFFIX = await readKitVersionSuffix();
 
 test("install codex and claude writes docs, skills, rules, and npm source manifest", async () => {
   const projectRoot = await makeTempProject();
@@ -102,7 +103,7 @@ test("update preserves local AGENTS.md changes and writes new version", async ()
   await fs.appendFile(path.join(projectRoot, "AGENTS.md"), "\n本地规则\n");
   await main(["update", "--cwd", projectRoot]);
 
-  assert.deepEqual(await listNewVersions(projectRoot, "."), ["AGENTS.md.new-v0.1.3"]);
+  assert.deepEqual(await listNewVersions(projectRoot, "."), [`AGENTS.md.new-${KIT_VERSION_SUFFIX}`]);
   await assertFileIncludes(projectRoot, "AGENTS.md", "本地规则");
 });
 
@@ -124,8 +125,8 @@ test("update writes numbered new version when pending file already exists", asyn
   await main(["update", "--cwd", projectRoot]);
 
   assert.deepEqual(await listNewVersions(projectRoot, "docs/ai-engineering"), [
-    "README.md.new-v0.1.3",
-    "README.md.new-v0.1.3.2",
+    `README.md.new-${KIT_VERSION_SUFFIX}`,
+    `README.md.new-${KIT_VERSION_SUFFIX}.2`,
   ]);
 });
 
@@ -143,6 +144,11 @@ test("doctor reports missing managed rule file", async () => {
 
 async function makeTempProject() {
   return fs.mkdtemp(path.join(os.tmpdir(), "ai-engineering-kit-test-"));
+}
+
+async function readKitVersionSuffix() {
+  const packageJson = JSON.parse(await fs.readFile(path.join(__dirname, "..", "package.json"), "utf8"));
+  return `v${packageJson.version}`;
 }
 
 async function makeReadmeConflict(projectRoot, localContent) {
