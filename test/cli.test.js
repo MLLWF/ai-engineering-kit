@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import { EventEmitter } from "node:events";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -135,6 +136,30 @@ test("update writes numbered new version when pending file already exists", asyn
   ]);
 });
 
+test("update removes stale managed files when upstream payload deletes them", async () => {
+  const projectRoot = await makeTempProject();
+  await main(["install", "codex", "--cwd", projectRoot]);
+  const stalePath = ".codex/skills/old-skill/SKILL.md";
+  const staleAbsolutePath = path.join(projectRoot, stalePath);
+  const staleContent = "old managed skill\n";
+  await fs.mkdir(path.dirname(staleAbsolutePath), { recursive: true });
+  await fs.writeFile(staleAbsolutePath, staleContent);
+
+  const manifest = await readManifest(projectRoot);
+  manifest.files[stalePath] = {
+    baseRemoteVersion: "v0.0.1",
+    baseRemoteHash: sha256(Buffer.from(staleContent)),
+    description: "test stale managed file",
+  };
+  await fs.writeFile(path.join(projectRoot, ".ai-engineering-kit.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+
+  await main(["update", "codex", "--cwd", projectRoot]);
+
+  assert.equal(await exists(staleAbsolutePath), false);
+  const updatedManifest = await readManifest(projectRoot);
+  assert.equal(stalePath in updatedManifest.files, false);
+});
+
 test("doctor reports missing managed rule file", async () => {
   const projectRoot = await makeTempProject();
   await main(["install", "--cwd", projectRoot]);
@@ -203,8 +228,21 @@ async function manifestHash(projectRoot, relativePath) {
 
 async function hashFile(filePath) {
   const bytes = await fs.readFile(filePath);
-  const { createHash } = await import("node:crypto");
-  return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  return sha256(bytes);
+}
+
+async function exists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sha256(bytes) {
+  const hash = crypto.createHash("sha256").update(bytes).digest("hex");
+  return `sha256:${hash}`;
 }
 
 async function captureStdout(callback) {

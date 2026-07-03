@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Engineering System Blueprint"
+  short_description: "Produce and approve system blueprints for AI Engineering Protocol"
+  default_prompt: "Use $ai-engineering-system-blueprint to produce, revise, and finalize a planning-stage system blueprint."

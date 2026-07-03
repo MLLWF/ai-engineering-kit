@@ -112,6 +112,7 @@ async function install(projectRoot, options) {
   const result = {
     created: [],
     updated: [],
+    removed: [],
     kept: [],
     newFiles: [],
   };
@@ -123,6 +124,8 @@ async function install(projectRoot, options) {
   for (const target of targets) {
     await installAgentRule(projectRoot, manifest, target, result);
   }
+
+  await removeStaleManagedFiles(projectRoot, manifest, entries, targets, result);
 
   manifest.schemaVersion = 1;
   manifest.kitVersion = KIT_VERSION;
@@ -139,6 +142,7 @@ async function update(projectRoot, options) {
   const result = {
     created: [],
     updated: [],
+    removed: [],
     kept: [],
     newFiles: [],
   };
@@ -150,6 +154,8 @@ async function update(projectRoot, options) {
   for (const target of targets) {
     await installAgentRule(projectRoot, manifest, target, result);
   }
+
+  await removeStaleManagedFiles(projectRoot, manifest, entries, targets, result);
 
   manifest.kitVersion = KIT_VERSION;
   manifest.source = kitSource();
@@ -434,6 +440,54 @@ async function installAgentRule(projectRoot, manifest, target, result) {
   result.newFiles.push(newRelativePath);
 }
 
+async function removeStaleManagedFiles(projectRoot, manifest, entries, targets, result) {
+  const expected = new Set(entries.map((entry) => entry.destination));
+  for (const target of targets) {
+    expected.add(target === "claude" ? "CLAUDE.md" : "AGENTS.md");
+  }
+
+  for (const [relativePath, record] of Object.entries(manifest.files || {})) {
+    if (expected.has(relativePath)) continue;
+    if (!isInManagedScope(relativePath, targets)) continue;
+
+    const absolutePath = path.join(projectRoot, relativePath);
+    if (!(await exists(absolutePath))) {
+      delete manifest.files[relativePath];
+      continue;
+    }
+
+    const currentHash = await hashFile(absolutePath);
+    if (currentHash === record.baseRemoteHash) {
+      await fs.rm(absolutePath);
+      await removeEmptyParents(projectRoot, path.dirname(absolutePath));
+      delete manifest.files[relativePath];
+      result.removed.push(relativePath);
+      continue;
+    }
+
+    delete manifest.files[relativePath];
+    result.kept.push(relativePath);
+  }
+}
+
+function isInManagedScope(relativePath, targets) {
+  if (relativePath.startsWith("docs/")) return true;
+  if (targets.includes("codex") && (relativePath.startsWith(".codex/") || relativePath === "AGENTS.md")) return true;
+  if (targets.includes("claude") && (relativePath.startsWith(".claude/") || relativePath === "CLAUDE.md")) return true;
+  return false;
+}
+
+async function removeEmptyParents(projectRoot, directory) {
+  const root = path.resolve(projectRoot);
+  let current = path.resolve(directory);
+  while (current.startsWith(root) && current !== root) {
+    const entries = await fs.readdir(current);
+    if (entries.length > 0) return;
+    await fs.rmdir(current);
+    current = path.dirname(current);
+  }
+}
+
 function upsertManagedBlock(content) {
   const trimmed = content.trimEnd();
   const start = trimmed.indexOf(START_MARKER);
@@ -692,6 +746,7 @@ function printInstallSummary(title, result, command) {
   console.log(title);
   printList("已创建", result.created);
   printList("已更新", result.updated);
+  printList("已删除废弃受管文件", result.removed);
   printList("已保留本地文件", result.kept);
   printList("已生成新版本文件", result.newFiles);
   if (result.newFiles.length > 0) {

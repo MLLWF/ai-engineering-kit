@@ -187,12 +187,12 @@ docs/ai-engineering/
 
 .codex/skills/
   ai-engineering-consensus/
-  ai-engineering-architecture-diagram/
+  ai-engineering-system-blueprint/
   ai-engineering-tdd/
 
 .claude/skills/
   ai-engineering-consensus/
-  ai-engineering-architecture-diagram/
+  ai-engineering-system-blueprint/
   ai-engineering-tdd/
 ```
 
